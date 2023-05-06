@@ -14,8 +14,7 @@ class EventTest {
     @Test
     public void builder(){
         Event event=Event.builder().
-            name("Inflearn Spsring  REST API")
-                .description("REST API development with Spring")
+            name("Inflearn Spsring  REST API").description("REST API development with Spring")
             .build();
         Assertions.assertThat(event).isNotNull();
     }
@@ -35,8 +34,6 @@ class EventTest {
         //Then
         Assertions.assertThat(event.getName()).isEqualTo(name);
         Assertions.assertThat(event.getDescription()).isEqualTo(description);
-
-
     }
 
 
