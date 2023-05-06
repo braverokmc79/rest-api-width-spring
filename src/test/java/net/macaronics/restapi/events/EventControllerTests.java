@@ -15,26 +15,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest
 public class EventControllerTests {
 
-//
-//    @Autowired
-//    MockMvc mockMvc;
-//
-//
-//    @Test
-//    public void createEvent(){
-//        try {
-//            mockMvc.perform(
-//                            post("/api/events/")
-//                            .contentType(MediaType.APPLICATION_JSON_UTF8)
-//                             .accept(MediaTypes.HAL_JSON)
-//                        )
-//                    .andExpect(status().isCreated());
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//
+    @Autowired
+    MockMvc mockMvc;
+
+
+    @Test
+    public void createEvent() throws  Exception{
+        mockMvc.perform(
+                        post("/api/events/")
+                                .contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaTypes.HAL_JSON)
+                ).andExpect(status().isCreated());
+    }
+
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
