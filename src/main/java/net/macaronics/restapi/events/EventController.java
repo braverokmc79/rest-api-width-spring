@@ -1,40 +1,36 @@
 package net.macaronics.restapi.events;
 
 
-import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
-import org.modelmapper.ValidationException;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.ObjectUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.print.attribute.standard.Destination;
 import java.net.URI;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @Controller
 @RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON_VALUE)
+@RequiredArgsConstructor
 public class EventController {
 
     private final EventRepository eventRepository;
 
+    private final  ModelMapper modelMapper;
 
-    @Autowired
-    private  ModelMapper modelMapper;
+    private final EventValidator eventValidator;
 
-    public EventController(EventRepository eventRepository){
-        this.eventRepository=eventRepository;
-    }
+
+
 
     /**
      *  methodOn  사용
@@ -48,13 +44,25 @@ public class EventController {
 
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody EventDto eventDto){
+    public ResponseEntity createEvent(@RequestBody @Valid  EventDto eventDto, Errors errors){
+        if(errors.hasErrors()){
+            System.out.println("첫번째 Bad Request 처리");
+            return ResponseEntity.badRequest().build();
+        }
+
+        eventValidator.validate(eventDto, errors);
+        if(errors.hasErrors()){
+            System.out.println("두번째 Bad Request 처리");
+            return ResponseEntity.badRequest().build();
+        }
+
         //Event event=modelMapper.map(eventDto, Event.class);
         Event event = eventDto.toEvent();
         Event newEvent=this.eventRepository.save(event);
         URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(event);
     }
+
 
 
     /**

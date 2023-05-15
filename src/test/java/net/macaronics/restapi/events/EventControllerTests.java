@@ -2,6 +2,7 @@ package net.macaronics.restapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -40,6 +41,7 @@ public class EventControllerTests {
 
 
     @Test
+    @DisplayName("정상적으로 이벤트를 생성하는 테스트")
     public void createEvent() throws  Exception{
         Event event =Event.builder()
                 .id(100)
@@ -83,6 +85,8 @@ public class EventControllerTests {
 
 
     @Test
+    @DisplayName("입력 받을 수 없는 값을 사용한 경우에 에러가 발생하는 테스트")
+    //spring.jackson.deserialization.fail-on-properties=true
     public void createEvent_Bad_Request() throws Exception{
         Event event =Event.builder()
                 .id(100)
@@ -108,6 +112,56 @@ public class EventControllerTests {
                 .andDo((print()))
                 .andExpect(status().isBadRequest());
     }
+
+
+
+
+    @Test
+    @DisplayName("입력값이 비어있는 경우에 에러가 발생하는 테스트")
+    public void createEvent_Bad_Request_Empty_Input() throws  Exception{
+        EventDto eventDto=EventDto.builder().build();
+
+        this.mockMvc.perform(
+                post("/api/events")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(this.objectMapper.writeValueAsString(eventDto))
+         ).andExpect(status().isBadRequest());
+
+    }
+
+
+
+    @Test
+    @DisplayName("입력 값이 잘못된 경우에 에러가 발생하는 테스트")
+    public void createEvent_Bad_Request_Wrong_Input() throws Exception{
+        Event event =Event.builder()
+                .id(100)
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2023, 05,  06, 19 , 20 ))
+                .closeEnrollmentDateTime(LocalDateTime.of(2023, 05,  20,  20 , 20))
+                .beginEventDateTime(LocalDateTime.of(2023, 05, 20, 20, 20))
+                .endEventDateTime(LocalDateTime.of(2023, 11, 26,  20, 20))
+                .basePrice(10000)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역 D2 스타텀 팩토리")
+                .free(true)
+                .offline(false)
+                .eventStatus(EventStatus.PUBLISHED)
+                .build();
+
+        this.mockMvc.perform(post("/api/events")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaTypes.HAL_JSON)
+                        .content(objectMapper.writeValueAsString(event)))
+                .andDo((print()))
+                .andExpect(status().isBadRequest());
+    }
+
+
+
+
 
 
 
