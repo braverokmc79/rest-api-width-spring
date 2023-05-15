@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
+//@Setter
 @EqualsAndHashCode(of="id")
 @Entity
 public class Event {
@@ -33,7 +33,6 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus;
-
 
 
 }

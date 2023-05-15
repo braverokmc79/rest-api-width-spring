@@ -2,13 +2,23 @@ package net.macaronics.restapi.events;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
+import org.modelmapper.ValidationException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 
 @SpringBootTest
 @Transactional
 class EventTest {
+
+
+    @Autowired
+    private  ModelMapper modelMapper;
 
 
     @Test
@@ -28,13 +38,64 @@ class EventTest {
 
         //When
         Event event=new Event();
-        event.setName(name);
-        event.setDescription(description);
+//        event.setName(name);
+//        event.setDescription(description);
 
         //Then
         Assertions.assertThat(event.getName()).isEqualTo(name);
         Assertions.assertThat(event.getDescription()).isEqualTo(description);
     }
+
+
+
+    @Test
+    public void 모델메퍼테스트(){
+
+        Event event =Event.builder()
+                .id(100)
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2023, 05,  06, 19 , 20 ))
+                .closeEnrollmentDateTime(LocalDateTime.of(2023, 05,  20,  20 , 20))
+                .beginEventDateTime(LocalDateTime.of(2023, 05, 20, 20, 20))
+                .endEventDateTime(LocalDateTime.of(2023, 11, 26,  20, 20))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역 D2 스타텀 팩토리")
+                .free(true)
+                .offline(false)
+                .build();
+
+        EventDto eventDto = modelMapper.map(event, EventDto.class);
+
+        try {
+            modelMapper.validate();
+            System.out.println("모델 매퍼 DTO 출력 : "+ eventDto.toString());
+        }catch (ValidationException e){
+            e.printStackTrace();
+        }
+        Assertions.assertThat(event.getName()).isEqualTo(eventDto.getName());
+
+
+        //PropertyMap<EventDto, Event> eventDtoEventPropertyMap=new PropertyMap<EventDto, Event>() {
+//            @Override
+//            protected void configure() {
+//                map().setId("d");
+//            }
+//        };
+//
+//
+//        Event event2 = modelMapper.map(eventDto, Event.class);
+//        try {
+//            modelMapper.validate();
+//            System.out.println("2 모델 매퍼 event2  출력 : "+ event2.toString());
+//        }catch (ValidationException e){
+//            e.printStackTrace();
+//        }
+
+    }
+
 
 
 
