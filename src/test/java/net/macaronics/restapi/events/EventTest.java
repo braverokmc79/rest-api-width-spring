@@ -1,9 +1,15 @@
 package net.macaronics.restapi.events;
 
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.runner.RunWith;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
 import org.modelmapper.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +20,7 @@ import java.time.LocalDateTime;
 
 @SpringBootTest
 @Transactional
+@RunWith(JUnitParamsRunner.class)
 class EventTest {
 
 
@@ -95,6 +102,63 @@ class EventTest {
 //        }
 
     }
+
+
+
+    @ParameterizedTest
+   // @CsvSource({"0,0,true", "100,0,false"})
+   // @MethodSource("paramsForTestFree")
+    @MethodSource
+    public void testFree(int basePrice, int maxPrice, boolean isFree){
+        //Given
+        Event event=Event.builder()
+                .basePrice(basePrice)
+                .maxPrice(maxPrice)
+                .build();
+
+        //When
+        event.update();
+
+        //Then
+        Assertions.assertThat(event.isFree()).isEqualTo(isFree);
+    }
+
+    static  Object[] testFree(){
+        return new Object[]{
+                new Object[] {0, 0,true},
+                new Object[]{100,0, false},
+                new Object[]{0,100, false},
+                new Object[]{100, 200, false}
+        };
+    }
+
+
+
+
+    @ParameterizedTest
+    @MethodSource
+    public void testOffline(String location, boolean isOffline){
+        //Given
+        Event event =Event.builder()
+                .location(location)
+
+                .build();
+        //When
+        event.update();
+
+        //Then
+        Assertions.assertThat(event.isOffline()).isEqualTo((isOffline));
+    }
+
+
+    static Object[] testOffline(){
+      return  new Object[]{
+                  new Object[]{"강남", true},
+                  new Object[]{null, false},
+                  new Object[]{"  ", false}
+        };
+    }
+
 
 
 

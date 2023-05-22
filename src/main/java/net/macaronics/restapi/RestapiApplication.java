@@ -13,17 +13,17 @@ public class RestapiApplication {
 		SpringApplication.run(RestapiApplication.class, args);
 	}
 
-//	@Bean
-//	public ModelMapper modelMapper() {
-//		ModelMapper modelMapper=new ModelMapper();
-//
-//		//setter 아닌  필드로 주입
-//		modelMapper.getConfiguration()
-//				.setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
-//				.setFieldMatchingEnabled(true)
-//				.setSkipNullEnabled(true);
-//		return modelMapper;
-//	}
+	@Bean
+	public ModelMapper modelMapper() {
+		ModelMapper modelMapper=new ModelMapper();
+
+		//setter 아닌  필드로 주입
+		modelMapper.getConfiguration()
+				.setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
+				.setFieldMatchingEnabled(true)
+				.setSkipNullEnabled(true);
+		return modelMapper;
+	}
 
 
 }

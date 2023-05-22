@@ -62,9 +62,14 @@ public class EventController {
             return ResponseEntity.badRequest().body(errors);
         }
 
+        //modelMapper 오류
         //Event event=modelMapper.map(eventDto, Event.class);
         Event event = eventDto.toEvent();
-        Event newEvent=this.eventRepository.save(event);
+        //유료인지 무료인지 변경처리
+        event.update();
+        Event newEvent=this.eventRepository.save(event);//저장
+
+        
         URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
         return ResponseEntity.created(createdUri).body(event);
     }

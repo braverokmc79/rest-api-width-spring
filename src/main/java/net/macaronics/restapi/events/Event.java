@@ -2,6 +2,7 @@ package net.macaronics.restapi.events;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
@@ -34,5 +35,20 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus;
 
+    public void update() {
+        //Update Free
+        if(this.basePrice==0 && this.maxPrice==0){
+            this.free=true;
+        }else{
+            this.free=false;
+        }
+
+        //Update offline
+        if(StringUtils.hasText(this.location)){
+            this.offline=true;
+        }else {
+            this.offline=false;
+        }
+    }
 
 }

@@ -35,6 +35,14 @@ public class EventControllerTests {
      * Mock은 껍데기만 있는 객체를 얘기합니다.
      * 인터페이스의 추상메소드가 메소드 바디는 없고 파라미터 타입과 리턴타입만 선언된 것처럼, Mock Bean은
      * 기존에 사용되던 Bean의 껍데기만 가져오고 내부의 구현 부분은 모두 사용자에게 위임한 형태입니다.
+     *
+     *
+     //Mockito.when(eventRepository.save(event)).thenReturn(event);
+
+     //MediaType.APPLICATION_JSON_UTF8   --> 버전 문제 다음 사용할것
+     //MediaTypes.HAL_JSON_VALUE
+     // Headers = [Location:"http://localhost/api/events/10", Content-Type:"application/hal+json"]
+
      */
 //    @MockBean
 //    EventRepository eventRepository;
@@ -55,17 +63,11 @@ public class EventControllerTests {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역 D2 스타텀 팩토리")
-                .free(true)
+                .free(false)
                 .offline(false)
+                .eventStatus(EventStatus.DRAFT)
                 .build();
 
-        //Mockito.when(eventRepository.save(event)).thenReturn(event);
-
-        //MediaType.APPLICATION_JSON_UTF8   --> 버전 문제 다음 사용할것
-        //MediaTypes.HAL_JSON_VALUE
-        // Headers = [Location:"http://localhost/api/events/10", Content-Type:"application/hal+json"]
-
-        System.out.println("event:  "+objectMapper.writeValueAsString(event));
         mockMvc.perform(
                         post("/api/events")
                                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -77,10 +79,11 @@ public class EventControllerTests {
                 .andExpect(jsonPath("id").exists())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
-                .andExpect(jsonPath("id").value(Matchers.not(100)))
-                .andExpect(jsonPath("free").value(Matchers.not(true)) );
-
+                .andExpect(jsonPath("free").value(false))
+                .andExpect(jsonPath("offline").value(true))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.toString()));
     }
+
 
 
 
