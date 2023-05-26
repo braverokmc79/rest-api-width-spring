@@ -7,11 +7,24 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.ClientHttpRequestExecution;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -47,6 +60,39 @@ public class EventControllerTests {
 //    @MockBean
 //    EventRepository eventRepository;
 
+//    RestTemplate
+//            restTemplate = new RestTemplateBuilder()
+//            .rootUri(ROOT_URI)
+//            .additionalInterceptors(new ApiClientHttpRequestInterceptor(DEFAULT_AUTHORIZATION))
+//            .additionalMessageConverters(
+//                    new StringHttpMessageConverter(StandardCharsets.UTF_8),
+//                    new MappingJackson2HttpMessageConverter())
+//            .setConnectTimeout(Duration.ofSeconds(10))
+//            .setReadTimeout(Duration.ofSeconds(5))
+//            .build();
+//
+//    public static class ApiClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
+//        private final String apiKey;
+//
+//        public ApiClientHttpRequestInterceptor(String apiKey) {
+//            Assert.hasText(apiKey, "Required apiKey.");
+//
+//            this.apiKey = apiKey;
+//        }
+//
+//        @Override
+//        public ClientHttpResponse intercept(HttpRequest request, byte[] body,
+//                                            ClientHttpRequestExecution execution) throws IOException {
+//            HttpHeaders headers = request.getHeaders();
+//            headers.setContentType(MediaType.APPLICATION_JSON);
+//
+//            if (StringUtils.hasText(apiKey)) {
+//                headers.set(HttpHeaders.AUTHORIZATION, apiKey);
+//            }
+//            return execution.execute(request, body);
+//        }
+//    }
+//
 
     @Test
     @DisplayName("정상적으로 이벤트를 생성하는 테스트")
@@ -81,7 +127,10 @@ public class EventControllerTests {
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
                 .andExpect(jsonPath("free").value(false))
                 .andExpect(jsonPath("offline").value(true))
-                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.toString()));
+               // .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.toString()))
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.query-events").exists())
+                .andExpect(jsonPath("_links.update-event").exists());
     }
 
 

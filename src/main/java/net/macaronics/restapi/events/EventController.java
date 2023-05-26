@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -65,13 +68,26 @@ public class EventController {
         //modelMapper 오류
         //Event event=modelMapper.map(eventDto, Event.class);
         Event event = eventDto.toEvent();
+        Integer eventId = event.getId();
         //유료인지 무료인지 변경처리
         event.update();
         Event newEvent=this.eventRepository.save(event);//저장
 
-        
-        URI createdUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
-        return ResponseEntity.created(createdUri).body(event);
+        /**
+         *
+         * ★ 링크 생성하기
+         * 지금 버전에서는  EventResource  클래스가 필요가없이
+         * EntityModel.of(newEvent); Resource 객체를 가져와서 사용할수 있다.
+         *
+         * **/
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(eventId);
+        URI createdUri = selfLinkBuilder.toUri();
+
+        EntityModel eventResource = EntityModel.of(newEvent);
+        eventResource.add(linkTo(EventController.class).slash(eventId).withSelfRel());
+        eventResource.add(linkTo(EventController.class).withRel("query-events"));
+        eventResource.add(selfLinkBuilder.withRel("update-event"));
+        return ResponseEntity.created(createdUri).body(eventResource);
     }
 
 
