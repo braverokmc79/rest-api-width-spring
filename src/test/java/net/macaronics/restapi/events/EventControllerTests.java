@@ -16,7 +16,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -90,7 +95,7 @@ public class EventControllerTests {
     @DisplayName("정상적으로 이벤트를 생성하는 테스트")
     public void createEvent() throws  Exception{
         Event event =Event.builder()
-                .id(100)
+              //  .id(100)
                 .name("Spring")
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2023, 05,  06, 19 , 20 ))
@@ -101,9 +106,9 @@ public class EventControllerTests {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역 D2 스타텀 팩토리")
-                .free(false)
-                .offline(false)
-                .eventStatus(EventStatus.DRAFT)
+             //   .free(false)
+             //   .offline(false)
+             //   .eventStatus(EventStatus.DRAFT)
                 .build();
 
         mockMvc.perform(
@@ -128,9 +133,70 @@ public class EventControllerTests {
                 .andExpect(jsonPath("_links.update-event").exists())
 
                 //스프링  REST Docs  적용
-                .andDo(document("create-event"));
+                .andDo(document("create-event",
+                        links(linkWithRel("self").description("link to self"),
+                                linkWithRel("query-events").description("link to query events"),
+                                linkWithRel("update-event").description("link to update an existing event")
+                        ),
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("accept header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
+                        ),
+
+                        //주의 : 요청 파라미터와 동일하게 빠짐없이 작성해 줘야 한다.
+                        requestFields(
+                               fieldWithPath("id").description("id of new Event"),
+                               fieldWithPath("beginEnrollmentDateTime").description("beginEnrollmentDateTime of new event"),
+                               fieldWithPath("name").description("name of new Enrollment"),
+                               fieldWithPath("description").description("ddescription of new event"),
+                               fieldWithPath("closeEnrollmentDateTime").description("closeEnrollmentDateTime  of  new event"),
+                               fieldWithPath("beginEventDateTime").description("beginEventDateTime of new event"),
+                                fieldWithPath("endEventDateTime").description("endEventDateTime  of  new event"),
+                                fieldWithPath("location").description("location  of  new event"),
+                                fieldWithPath("basePrice").description("basePrice  of  new event"),
+                                fieldWithPath("maxPrice").description("maxPrice of new event"),
+                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of new event"),
+                                fieldWithPath("offline").description("offline of new event"),
+                                fieldWithPath("free").description("free of new event"),
+                                fieldWithPath("eventStatus").description("eventStatus of new Enrollment")
+
+                        ),
+
+                        responseHeaders(
+                                headerWithName(HttpHeaders.LOCATION).description("Location header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
+                        ),
+                        
+                        // relaxedResponseFields 응답의 일부분만 해당하는 자료 문서화
+                        responseFields(
+
+                                fieldWithPath("id").description("id of new Event"),
+                                fieldWithPath("beginEnrollmentDateTime").description("beginEnrollmentDateTime of new event"),
+                                fieldWithPath("name").description("name of new Enrollment"),
+                                fieldWithPath("description").description("ddescription of new event"),
+                                fieldWithPath("closeEnrollmentDateTime").description("closeEnrollmentDateTime  of  new event"),
+                                fieldWithPath("beginEventDateTime").description("beginEventDateTime of new event"),
+                                fieldWithPath("endEventDateTime").description("endEventDateTime  of  new event"),
+                                fieldWithPath("location").description("location  of  new event"),
+                                fieldWithPath("basePrice").description("basePrice  of  new event"),
+                                fieldWithPath("maxPrice").description("maxPrice of new event"),
+                                fieldWithPath("limitOfEnrollment").description("limitOfEnrollment of new event"),
+                                fieldWithPath("offline").description("offline of new event"),
+                                fieldWithPath("free").description("free of new event"),
+                                fieldWithPath("eventStatus").description("eventStatus of new Enrollment"),
+
+
+
+                                fieldWithPath("_links.self.href").description("link to self"),
+                                fieldWithPath("_links.query-events.href").description("link to query event list"),
+                                fieldWithPath("_links.update-event.href").description("link to update existing event")
+                        )
+                ));
+
+
 
     }
+
 
 
 
