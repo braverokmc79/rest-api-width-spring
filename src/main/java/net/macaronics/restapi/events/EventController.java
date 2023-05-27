@@ -4,15 +4,11 @@ package net.macaronics.restapi.events;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -74,10 +70,15 @@ public class EventController {
          * **/
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(eventId);
         URI createdUri = selfLinkBuilder.toUri();
+        log.info("*  createdUri  {} " , createdUri);
+        //출력 =>  *  createdUri  http://localhost/api/events
 
         EntityModel eventResource = EntityModel.of(newEvent);
+        //셀프링크 추가 방법
         eventResource.add(linkTo(EventController.class).slash(eventId).withSelfRel());
+        //1)링크추가방법
         eventResource.add(linkTo(EventController.class).withRel("query-events"));
+        //2)링크추가방법
         eventResource.add(selfLinkBuilder.withRel("update-event"));
         return ResponseEntity.created(createdUri).body(eventResource);
     }
