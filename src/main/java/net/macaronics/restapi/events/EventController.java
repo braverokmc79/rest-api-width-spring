@@ -49,19 +49,12 @@ public class EventController {
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid  EventDto eventDto, Errors errors){
         if(errors.hasErrors()){
-            log.info("첫번째 Bad Request 처리 {}", errors.getFieldErrors());
-            //return ResponseEntity.badRequest().build();
             return ResponseEntity.badRequest().body(errors);
         }
 
         //커스텀 validate 검사
         eventValidator.validate(eventDto, errors);
         if(errors.hasErrors()){
-            log.info("두번째 Bad Request 처리");
-           // return ResponseEntity.badRequest().build();
-            //errors 의 경우 기본적으로 Serialize 처리가 안되어 있어 에러 발생
-            //다음괴 같이 ErrorsSerializer 클래스를 만들어 처리해 준다.
-            log.info(" errors  : {}", errors);
             return ResponseEntity.badRequest().body(errors);
         }
 
@@ -76,8 +69,7 @@ public class EventController {
         /**
          *
          * ★ 링크 생성하기
-         * 지금 버전에서는  EventResource  클래스가 필요가없이
-         * EntityModel.of(newEvent); Resource 객체를 가져와서 사용할수 있다.
+         * EntityModel.of(newEvent); Resource 객체를 가져와서 사용
          *
          * **/
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(eventId);
