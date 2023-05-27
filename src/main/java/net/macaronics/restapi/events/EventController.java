@@ -4,8 +4,7 @@ package net.macaronics.restapi.events;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.*;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -80,6 +79,8 @@ public class EventController {
         eventResource.add(linkTo(EventController.class).withRel("query-events"));
         //2)링크추가방법
         eventResource.add(selfLinkBuilder.withRel("update-event"));
+        eventResource.add(Link.of("/docs/index.html#resource-events-create").withRel("profile"));
+
         return ResponseEntity.created(createdUri).body(eventResource);
     }
 
