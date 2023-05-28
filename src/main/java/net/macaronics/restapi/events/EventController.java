@@ -13,12 +13,10 @@ import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -113,6 +111,22 @@ public class EventController {
         entityModel.add(Link.of("/docs/index.html#resource-events-list").withRel("profile"));
         return  ResponseEntity.ok(entityModel);
     }
+
+
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<?> getEvent(@PathVariable("id") Integer id) {
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if(optionalEvent.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        Event event =optionalEvent.get();
+        EntityModel<Event> entityModel = EventResource.of(event);
+        entityModel.add(Link.of("/docs/index.html#resource-events-get").withRel("profile"));
+        return ResponseEntity.ok(entityModel);
+    }
+
+
+
 
 
 
