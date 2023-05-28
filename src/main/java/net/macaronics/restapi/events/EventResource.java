@@ -3,15 +3,42 @@ package net.macaronics.restapi.events;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-//현재 언랩을 하지 않아도 언랩이 된다
-//다음코드 사용안함
-public class EventResource extends RepresentationModel {
-    public EventResource(Event content, Link... links){
-       super();
-        EntityModel eventResource = EntityModel.of(content);
-        eventResource.add(linkTo(EventController.class).withRel("query-events"));
+/**
+ * ★★ 기본 소스
+ */
+public class EventResource extends EntityModel<Event> {
+
+    private static WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class);
+
+    private EventResource(){ }
+
+    public static EntityModel<Event> of(Event event, String profile){
+        List<Link> links = getSelfLink(event);
+        links.add(Link.of(profile, "profile"));
+        return EntityModel.of(event, links);
+    }
+
+    public static EntityModel<Event> of(Event event){
+        List<Link> links = getSelfLink(event);
+        return EntityModel.of(event, links);
+    }
+
+    private static List<Link> getSelfLink(Event event) {
+        selfLinkBuilder.slash(event.getId());
+        List<Link> links = new ArrayList<>();
+        links.add(selfLinkBuilder.withSelfRel());
+        return links;
+    }
+
+    public static URI getCreatedUri(Event event) {
+        return selfLinkBuilder.slash(event.getId()).toUri();
     }
 }

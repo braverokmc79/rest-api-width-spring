@@ -12,43 +12,39 @@ import java.io.IOException;
 // Spring Boot에서 제공하는 @JsonComponent를 사용하면 손쉽게 등록이 가능하다.
 @JsonComponent
 public class ErrorsSerializer extends JsonSerializer<Errors> {
+
     @Override
-    public void serialize(Errors errors, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    public void serialize(Errors value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeFieldName("errors");
         gen.writeStartArray();
-        errors.getFieldErrors().forEach(e->{
+        value.getFieldErrors().forEach(e->{
             try{
                 gen.writeStartObject();
-                gen.writeStringField("objectName",e.getObjectName());
-                gen.writeStringField("field",e.getField());
-                gen.writeStringField("defaultMessage",e.getDefaultMessage());
+                gen.writeStringField("field", e.getField());
+                gen.writeStringField("objectName", e.getObjectName());
                 gen.writeStringField("code", e.getCode());
-                Object rejectedValue =e.getRejectedValue();
-                if(rejectedValue!=null){
-                    gen.writeStringField("rejectedValue", rejectedValue.toString());
+                gen.writeStringField("defaultMessage", e.getDefaultMessage());
+                Object rejectValue = e.getRejectedValue();
+                if (rejectValue != null){
+                    gen.writeStringField("rejectedValue", rejectValue.toString());
                 }
-
                 gen.writeEndObject();
-            }catch (IOException e1){
+            } catch (IOException e1) {
                 e1.printStackTrace();
             }
         });
 
-        errors.getGlobalErrors().stream().forEach(e->{
+        value.getGlobalErrors().forEach(e -> {
             try{
                 gen.writeStartObject();
-                gen.writeStringField("objectName",e.getObjectName());
-                gen.writeStringField("defaultMessage",e.getDefaultMessage());
+                gen.writeStringField("objectName", e.getObjectName());
                 gen.writeStringField("code", e.getCode());
+                gen.writeStringField("defaultMessage", e.getDefaultMessage());
                 gen.writeEndObject();
-            }catch (IOException e1){
+            } catch (IOException e1) {
                 e1.printStackTrace();
             }
         });
-
         gen.writeEndArray();
     }
-
-
-
-
 }

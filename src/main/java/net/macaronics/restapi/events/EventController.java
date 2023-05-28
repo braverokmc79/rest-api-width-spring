@@ -4,11 +4,16 @@ package net.macaronics.restapi.events;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import net.macaronics.restapi.common.ErrorsResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.*;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +34,9 @@ public class EventController {
 
     private final EventValidator eventValidator;
 
+    private final ErrorsResource errorsResource;
+
+
 
     /**
      *  methodOn  사용
@@ -42,15 +50,18 @@ public class EventController {
 
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody @Valid  EventDto eventDto, Errors errors){
-        if(errors.hasErrors()){
-            return ResponseEntity.badRequest().body(errors);
+    public ResponseEntity createEvent(@RequestBody @Valid  EventDto eventDto, Errors errors) throws Exception {
+
+        if (errors.hasErrors()) {
+            //  return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
         //커스텀 validate 검사
         eventValidator.validate(eventDto, errors);
         if(errors.hasErrors()){
-            return ResponseEntity.badRequest().body(errors);
+            // return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
         //modelMapper 오류
@@ -80,33 +91,36 @@ public class EventController {
         //2)링크추가방법
         eventResource.add(selfLinkBuilder.withRel("update-event"));
         eventResource.add(Link.of("/docs/index.html#resource-events-create").withRel("profile"));
-
         return ResponseEntity.created(createdUri).body(eventResource);
+    }
+
+//    @GetMapping
+//    public ResponseEntity queryEvent(Pageable pageable, RepresentationModel assembler ){
+//        Page<Event> page = this.eventRepository.findAll(pageable);
+//
+//        assembler.add(linkTo(page).withRel("events"));
+//        return  ResponseEntity.ok().body(assembler);
+//
+//    }
+
+    /**페이징 처리 */
+    @GetMapping
+    public ResponseEntity<PagedModel<EntityModel<Event>>> queryEvent(Pageable pageable ,
+                                                                     PagedResourcesAssembler<Event> assembler){
+        Page<Event> page = this.eventRepository.findAll(pageable);
+        PagedModel<EntityModel<Event>> entityModel=assembler.toModel(page,e-> EventResource.of(e));
+        //링크 추가
+        entityModel.add(Link.of("/docs/index.html#resource-events-list").withRel("profile"));
+        return  ResponseEntity.ok(entityModel);
     }
 
 
 
-    /**
+    private ResponseEntity<EntityModel> badRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(errorsResource.addLink(errors));
+    }
 
-     {
-     "id": 1,
-     "name": "Spring",
-     "description": "REST API Development with Spring",
-     "beginEnrollmentDateTime": "2023-05-06T19:20:00",
-     "closeEnrollmentDateTime": "2023-05-20T20:20:00",
-     "beginEventDateTime": "2023-05-20T20:20:00",
-     "endEventDateTime": null,
-     "location": "강남역 D2 스타텀 팩토리",
-     "basePrice": 100,
-     "maxPrice": 200,
-     "limitOfEnrollment": 100,
-     "offline": false,
-     "free": false,
-     "eventStatus": null
-     }
 
-     *
-     *
-     */
+
 
 }

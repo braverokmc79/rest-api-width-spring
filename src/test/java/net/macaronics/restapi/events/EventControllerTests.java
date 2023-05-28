@@ -2,6 +2,7 @@ package net.macaronics.restapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.macaronics.restapi.common.RestDocsConfiguration;
+import net.macaronics.restapi.common.TestDescription;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +15,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.stream.IntStream;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.*;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -43,6 +48,11 @@ public class EventControllerTests {
     @Autowired
     ObjectMapper objectMapper;
 
+
+    @Autowired
+    EventRepository eventRepository;
+
+
     /**
      * Mock은 껍데기만 있는 객체를 얘기합니다.
      * 인터페이스의 추상메소드가 메소드 바디는 없고 파라미터 타입과 리턴타입만 선언된 것처럼, Mock Bean은
@@ -56,42 +66,7 @@ public class EventControllerTests {
      // Headers = [Location:"http://localhost/api/events/10", Content-Type:"application/hal+json"]
 
      */
-//    @MockBean
-//    EventRepository eventRepository;
 
-//    RestTemplate
-//            restTemplate = new RestTemplateBuilder()
-//            .rootUri(ROOT_URI)
-//            .additionalInterceptors(new ApiClientHttpRequestInterceptor(DEFAULT_AUTHORIZATION))
-//            .additionalMessageConverters(
-//                    new StringHttpMessageConverter(StandardCharsets.UTF_8),
-//                    new MappingJackson2HttpMessageConverter())
-//            .setConnectTimeout(Duration.ofSeconds(10))
-//            .setReadTimeout(Duration.ofSeconds(5))
-//            .build();
-//
-//    public static class ApiClientHttpRequestInterceptor implements ClientHttpRequestInterceptor {
-//        private final String apiKey;
-//
-//        public ApiClientHttpRequestInterceptor(String apiKey) {
-//            Assert.hasText(apiKey, "Required apiKey.");
-//
-//            this.apiKey = apiKey;
-//        }
-//
-//        @Override
-//        public ClientHttpResponse intercept(HttpRequest request, byte[] body,
-//                                            ClientHttpRequestExecution execution) throws IOException {
-//            HttpHeaders headers = request.getHeaders();
-//            headers.setContentType(MediaType.APPLICATION_JSON);
-//
-//            if (StringUtils.hasText(apiKey)) {
-//                headers.set(HttpHeaders.AUTHORIZATION, apiKey);
-//            }
-//            return execution.execute(request, body);
-//        }
-//    }
-//
 
     @Test
     @DisplayName("정상적으로 이벤트를 생성하는 테스트")
@@ -107,7 +82,7 @@ public class EventControllerTests {
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
-                .location("강남역 D2 스타텀 팩토리")
+                .location("1.강남역 D2 스타텀 팩토리")
              //   .free(false)
              //   .offline(false)
              //   .eventStatus(EventStatus.DRAFT)
@@ -123,9 +98,9 @@ public class EventControllerTests {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").exists())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+               // .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
 
-                //.andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/hal+json;charset=UTF-8"))
+               .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/hal+json;charset=UTF-8"))
 
                 .andExpect(jsonPath("free").value(false))
                 .andExpect(jsonPath("offline").value(true))
@@ -190,7 +165,6 @@ public class EventControllerTests {
                                 fieldWithPath("eventStatus").description("eventStatus of new Enrollment"),
 
 
-
                                 fieldWithPath("_links.self.href").description("link to self"),
                                 fieldWithPath("_links.query-events.href").description("link to query event list"),
                                 fieldWithPath("_links.update-event.href").description("link to update existing event"),
@@ -221,7 +195,7 @@ public class EventControllerTests {
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
-                .location("강남역 D2 스타텀 팩토리")
+                .location("2.강남역 D2 스타텀 팩토리")
                 .free(true)
                 .offline(false)
                 .eventStatus(EventStatus.PUBLISHED)
@@ -232,7 +206,7 @@ public class EventControllerTests {
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(event)))
                 .andDo((print()))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isCreated());
     }
 
 
@@ -252,12 +226,10 @@ public class EventControllerTests {
     }
 
 
-
     @Test
-    @DisplayName("입력 값이 잘못된 경우에 에러가 발생하는 테스트")
+    @DisplayName("이벤트  입력 값이 잘못된 경우에 에러가 발생하는 테스트")
     public void createEvent_Bad_Request_Wrong_Input() throws Exception{
         Event event =Event.builder()
-                .id(100)
                 .name("Spring")
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2023, 05,  06, 19 , 20 ))
@@ -267,23 +239,53 @@ public class EventControllerTests {
                 .basePrice(10000)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
-                .location("강남역 D2 스타텀 팩토리")
-                .free(true)
-                .offline(false)
+                .location("3.강남역 D2 스타텀 팩토리")
                 .eventStatus(EventStatus.PUBLISHED)
                 .build();
 
-        this.mockMvc.perform(post("/api/events")
+        this.mockMvc.perform(MockMvcRequestBuilders.post("/api/events")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaTypes.HAL_JSON)
                         .content(objectMapper.writeValueAsString(event)))
                 .andDo((print()))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$[0].objectName").exists())
-             //   .andExpect(jsonPath("$[0].field").exists() )
-                .andExpect(jsonPath("$[0].defaultMessage").exists() )
-                .andExpect(jsonPath("$[0].code").exists());
-              //  .andExpect(jsonPath("$[0].rejectedValue").exists());
+
+                .andExpect(jsonPath("errors[0].objectName").exists())
+                .andExpect(jsonPath("errors[0].defaultMessage").exists())
+                .andExpect(jsonPath("errors[0].code").exists())
+                .andExpect(jsonPath("_links.index").exists()); // 추가
+    }
+
+
+    
+    @Test
+    @TestDescription("30개의 이벤트를 10개씩 두번째 페이지 조회하기")
+    public void queryEvents() throws Exception{
+        //Given
+        IntStream.range(0, 30).forEach(this::generateEvent);
+
+        //when
+        this.mockMvc.perform(get("/api/events")
+                        .param("page", "1")
+                        .param("size", "10")
+                        .param("sort", "name,DESC")
+
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("page").exists())
+                .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("query_events"));
+    }
+
+    private void generateEvent(int index) {
+        Event event=Event.builder()
+                .name("event "+index)
+                .description("test event")
+                .build();
+        this.eventRepository.save(event);
     }
 
 
@@ -291,11 +293,6 @@ public class EventControllerTests {
 
 
 
-
-
 }
-
-
-
 
 

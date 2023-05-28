@@ -1,5 +1,5 @@
 = Natural REST API Guide
-백기선;
+최준호;
 :doctype: book
 :icons: font
 :source-highlighter: highlightjs
@@ -126,3 +126,10 @@ operation::get-event[snippets='request-fields,curl-request,http-response,links']
 `PUT` 요청을 사용해서 기존 이벤트를 수정할 수 있다.
 
 operation::update-event[snippets='request-fields,curl-request,http-response,links']
+
+
+=== 이벤트 페이징
+
+`Page` 페이징처리
+
+operation::query-events[snippets='request-fields,curl-request,http-response,links']
