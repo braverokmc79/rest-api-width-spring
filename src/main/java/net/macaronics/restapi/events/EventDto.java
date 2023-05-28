@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @EqualsAndHashCode(of="id")
 @Getter
+@Setter
 @ToString
 public class EventDto {
 
@@ -38,6 +39,8 @@ public class EventDto {
 
     @Min(0)
     private int limitOfEnrollment;
+
+
 
 
     public Event  toEvent(){

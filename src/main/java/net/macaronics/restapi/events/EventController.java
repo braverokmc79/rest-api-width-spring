@@ -127,6 +127,31 @@ public class EventController {
 
 
 
+    /** 수정하기 */
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateEvent(@PathVariable("id") Integer id,
+                                         @RequestBody @Valid  EventDto eventDto, Errors errors){
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if(optionalEvent.isEmpty()) return ResponseEntity.notFound().build();
+
+        if(errors.hasErrors())return badRequest(errors);
+
+        eventValidator.validate(eventDto, errors);
+        if(errors.hasErrors())return badRequest(errors);  //커스텀 에러 로직상 에러잡기
+
+
+        Event existEvent=optionalEvent.get();
+        existEvent.updateEvent(eventDto);
+        //서비스 객체를 만들지 않아서 더티체킹이 일어나지 않는다. 따라서, repository 실질적으로 저장처리
+        eventRepository.save(existEvent);
+
+
+        EntityModel<Event> entityModel = EventResource.of(existEvent);
+        entityModel.add(Link.of("/docs/index.html#resource-events-update").withRel("profile"));
+        return ResponseEntity.ok(entityModel);
+    }
+
+
 
 
 

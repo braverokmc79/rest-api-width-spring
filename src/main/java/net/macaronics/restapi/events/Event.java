@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-//@Setter
+@Setter
 @EqualsAndHashCode(of="id")
 @Entity
 public class Event {
@@ -50,5 +50,38 @@ public class Event {
             this.offline=false;
         }
     }
+
+
+    public  EventDto  toEventDto(){
+        return  EventDto.builder()
+                .name(this.name)
+                .description(this.description)
+                .beginEnrollmentDateTime(this.beginEnrollmentDateTime)
+                .closeEnrollmentDateTime(this.closeEnrollmentDateTime)
+                .beginEventDateTime(this.beginEventDateTime)
+                .endEventDateTime(this.endEventDateTime)
+                .location(this.location)
+                .basePrice(this.basePrice)
+                .maxPrice(this.maxPrice)
+                .limitOfEnrollment(this.limitOfEnrollment)
+                .build();
+    }
+
+
+    public Event updateEvent(EventDto eventDto){
+        this.name=eventDto.getName();
+        this.description=eventDto.getDescription();
+        this.beginEnrollmentDateTime=eventDto.getBeginEnrollmentDateTime();
+        this.closeEnrollmentDateTime=eventDto.getCloseEnrollmentDateTime();
+        this.beginEventDateTime=eventDto.getBeginEventDateTime();
+        this.endEventDateTime=eventDto.getEndEventDateTime();
+        this.location=eventDto.getLocation();
+        this.basePrice=eventDto.getBasePrice();
+        this.maxPrice=eventDto.getMaxPrice();
+        this.limitOfEnrollment=eventDto.getLimitOfEnrollment();
+
+        return  this;
+    }
+
 
 }
