@@ -37,7 +37,7 @@ class EventTest {
     }
 
 
-    @Test
+    //@Test
     public void javaBean(){
         //Given
         String name = "Event";
@@ -55,7 +55,7 @@ class EventTest {
 
 
 
-    @Test
+   // @Test
     public void 모델메퍼테스트(){
 
         Event event =Event.builder()

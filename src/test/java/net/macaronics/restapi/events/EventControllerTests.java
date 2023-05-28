@@ -1,6 +1,7 @@
 package net.macaronics.restapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.macaronics.restapi.common.BaseControllerTest;
 import net.macaronics.restapi.common.RestDocsConfiguration;
 import net.macaronics.restapi.common.TestDescription;
 import org.junit.jupiter.api.DisplayName;
@@ -33,18 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureRestDocs
-@Import(RestDocsConfiguration.class)
-@ActiveProfiles("test")
-public class EventControllerTests {
-
-    @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper objectMapper;
+public class EventControllerTests extends BaseControllerTest {
 
 
     @Autowired
@@ -348,7 +338,7 @@ public class EventControllerTests {
         Event event=this.generateEvent(200);
 
         EventDto eventDto =new EventDto();
-        
+
         this.mockMvc.perform(patch("/api/events/{id}", event.getId())
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .accept(MediaTypes.HAL_JSON)

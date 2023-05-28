@@ -1,6 +1,7 @@
 package net.macaronics.restapi.index;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.macaronics.restapi.common.BaseControllerTest;
 import net.macaronics.restapi.common.RestDocsConfiguration;
 import net.macaronics.restapi.events.Event;
 import net.macaronics.restapi.events.EventStatus;
@@ -24,20 +25,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@AutoConfigureRestDocs
-@Import(RestDocsConfiguration.class)
-@ActiveProfiles("test")
-public class IndexControllerTest {
 
+public class IndexControllerTest  extends BaseControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
-
-
-    @Autowired
-    ObjectMapper objectMapper;
 
 
     @Test
