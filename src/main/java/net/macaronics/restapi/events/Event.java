@@ -2,6 +2,7 @@ package net.macaronics.restapi.events;
 
 import jakarta.persistence.*;
 import lombok.*;
+import net.macaronics.restapi.accounts.Account;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
@@ -32,8 +33,19 @@ public class Event {
     private boolean offline;
     private boolean free;
 
+
+
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus;
+
+
+    /**
+     * //단반향 매핑
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id")
+    private Account manager;
+
 
     public void update() {
         //Update Free
