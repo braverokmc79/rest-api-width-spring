@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -28,10 +29,14 @@ class AccountServiceTest {
     public ExpectedException expectedException=ExpectedException.none();
 
     @Autowired
-    AccountService accountService;
+    PrincipalDetailsService principalDetailsService;
 
     @Autowired
     AccountRepository accountRepository;
+
+
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
 
     @Test
     public void findByUsername(){
@@ -43,14 +48,14 @@ class AccountServiceTest {
                 .password(password)
                 .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
                 .build();
-        accountRepository.save(account);
+        Account save = principalDetailsService.saveAccount(account);
 
         //WHEN
-        UserDetailsService userDetailsService=(UserDetailsService) accountService;
+        UserDetailsService userDetailsService=(UserDetailsService) principalDetailsService;
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         //Then
-        Assertions.assertThat(userDetails.getPassword()).isEqualTo(password);
+        Assertions.assertThat(this.passwordEncoder.matches(password, userDetails.getPassword())).isTrue();
     }
 
 
@@ -59,7 +64,7 @@ class AccountServiceTest {
     public void findByUsernameFail(){
         String username = "test@gmail.com";
         try{
-            accountService.loadUserByUsername(username);
+            principalDetailsService.loadUserByUsername(username);
             Assert.fail("supposed to be failed");
         }catch (UsernameNotFoundException e){
             Assertions.assertThat(e.getMessage()).containsSequence(username);
@@ -76,7 +81,7 @@ class AccountServiceTest {
         expectedException.expectMessage(Matchers.containsString(username));
 
         //When
-        accountService.loadUserByUsername(username);
+        principalDetailsService.loadUserByUsername(username);
     }
 
 
