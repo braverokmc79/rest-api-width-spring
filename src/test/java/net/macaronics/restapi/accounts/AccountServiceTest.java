@@ -1,5 +1,6 @@
 package net.macaronics.restapi.accounts;
 
+import lombok.extern.log4j.Log4j2;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -12,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -23,6 +23,7 @@ import java.util.Set;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ActiveProfiles("test")
+@Log4j2
 class AccountServiceTest {
 
     @Rule
@@ -54,6 +55,7 @@ class AccountServiceTest {
         UserDetailsService userDetailsService=(UserDetailsService) principalDetailsService;
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
+        log.info(" save ==> {}",save.getEmail());
         //Then
         Assertions.assertThat(this.passwordEncoder.matches(password, userDetails.getPassword())).isTrue();
     }

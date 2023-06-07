@@ -3,8 +3,6 @@ package net.macaronics.restapi;
 import net.macaronics.restapi.accounts.Account;
 import net.macaronics.restapi.accounts.AccountRole;
 import net.macaronics.restapi.accounts.PrincipalDetailsService;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.config.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -26,8 +24,6 @@ public class RestapiApplication {
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-
-
 
 
 	@Bean

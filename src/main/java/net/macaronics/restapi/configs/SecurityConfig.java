@@ -18,6 +18,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -54,13 +57,17 @@ public class SecurityConfig {
 
     private final ObjectMapper objectMapper;
 
-
     @Autowired
     PrincipalDetailsService principalDetailsService;
 
 
     private final BCryptPasswordEncoder passwordEncoder;
 
+
+    @Bean
+    public TokenStore tokenStore(){
+        return  new InMemoryTokenStore();
+    }
 
 
 
@@ -119,43 +126,43 @@ public class SecurityConfig {
     }
 
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable().cors().disable()
-
-                .authorizeHttpRequests(request -> request
-                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-
-                        .requestMatchers("/h2-console","/h2-console/**", "/docs/index.html").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/api/**").authenticated()
-                        .anyRequest().authenticated()
-
-
-                )
-                //.anonymous().and()
-                .headers().frameOptions().sameOrigin()  // 여기!
-                .and()
-
-                .formLogin(
-                        login -> login.usernameParameter("email")
-                            .passwordParameter("password")
-                                .failureHandler(customFailureHandler).permitAll()
-                )
-
-
-//                .formLogin(login -> login
-//                        .loginPage("/loginForm")
-//                        .loginProcessingUrl("/login")
-//                        .usernameParameter("userId")
-//                        .passwordParameter("password")
-//                        .defaultSuccessUrl("/", true)
-//                        .failureHandler(customFailureHandler) // 로그인 오류 실패 체크 핸들러
-//                        .permitAll()
-               // )
-                .logout();
-
-        return http.build();
-    }
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+//        http.csrf().disable().cors().disable()
+//
+//                .authorizeHttpRequests(request -> request
+//                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+//
+//                        .requestMatchers("/h2-console","/h2-console/**", "/docs/index.html").permitAll()
+//                        .requestMatchers(HttpMethod.GET,"/api/**").authenticated()
+//                        .anyRequest().authenticated()
+//
+//
+//                )
+//
+//                .headers().frameOptions().sameOrigin()  // 여기!
+//                .and()
+//
+//                .formLogin(
+//                        login -> login.usernameParameter("email")
+//                            .passwordParameter("password")
+//                                .failureHandler(customFailureHandler).permitAll()
+//                )
+//
+//
+////                .formLogin(login -> login
+////                        .loginPage("/loginForm")
+////                        .loginProcessingUrl("/login")
+////                        .usernameParameter("userId")
+////                        .passwordParameter("password")
+////                        .defaultSuccessUrl("/", true)
+////                        .failureHandler(customFailureHandler) // 로그인 오류 실패 체크 핸들러
+////                        .permitAll()
+//               // )
+//                .logout();
+//
+//        return http.build();
+//    }
 
 
 

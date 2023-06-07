@@ -22,7 +22,6 @@ public class Account {
 
     private String password;
 
-    
 
     //권한 정보
     //ADMIN, USER 권한 모두 있는 경우

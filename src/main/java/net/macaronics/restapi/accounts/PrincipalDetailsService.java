@@ -25,7 +25,6 @@ public class PrincipalDetailsService implements UserDetailsService{
 
     private final BCryptPasswordEncoder passwordEncoder;
 
-
     public Account saveAccount(Account account){
         account.setPassword(this.passwordEncoder.encode(account.getPassword()));
         return this.accountRepository.save(account);
@@ -42,7 +41,6 @@ public class PrincipalDetailsService implements UserDetailsService{
         return  roles.stream().map(r->new SimpleGrantedAuthority("ROLE_"+r.name()))
                 .collect(Collectors.toSet());
     }
-
 
 
 }

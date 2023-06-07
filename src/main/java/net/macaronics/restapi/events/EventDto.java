@@ -41,8 +41,6 @@ public class EventDto {
     private int limitOfEnrollment;
 
 
-
-
     public Event  toEvent(){
         return  Event.builder()
                 .name(this.name)

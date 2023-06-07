@@ -16,4 +16,5 @@ public class ErrorsResource{
         entityModel.add(linkTo(methodOn(IndexController.class).index()).withRel("index"));
         return entityModel;
     }
+
 }
