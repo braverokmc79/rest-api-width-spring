@@ -19,6 +19,9 @@ import org.springframework.stereotype.Component;
  * 토큰 발급
  * 오류 사항 참조:
  * https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter
+ *
+ *
+   ★★★ 버전  업데이트로 SecurityConfig 에서 설정할것.
  */
 //@Component
 //@EnableAuthorizationServer
@@ -49,9 +52,7 @@ public class AuthSeverConfig  extends AuthorizationServerConfigurerAdapter {
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         System.out.println("******************  ClientDetailsServiceConfigurer ");
-
-
-        //inMemory 가 아니라 DB 에서 관리해야 한다.
+        //원래는 inMemory 가 아니라 DB 에서 관리해야 한다.
         clients.inMemory().withClient("myApp")
                 .authorizedGrantTypes("password", "refresh_token")
                 .scopes("read", "write")
@@ -66,7 +67,6 @@ public class AuthSeverConfig  extends AuthorizationServerConfigurerAdapter {
         endpoints.authenticationManager(authenticationManager)
                 .userDetailsService(principalDetailsService)
                 .tokenStore(tokenStore);
-
     }
 
 

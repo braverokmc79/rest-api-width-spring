@@ -55,7 +55,7 @@ class AccountServiceTest {
         UserDetailsService userDetailsService=(UserDetailsService) principalDetailsService;
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        log.info(" save ==> {}",save.getEmail());
+        log.info(" save ==> {} , password : {}",save.getEmail(), save.getPassword());
         //Then
         Assertions.assertThat(this.passwordEncoder.matches(password, userDetails.getPassword())).isTrue();
     }
@@ -64,11 +64,13 @@ class AccountServiceTest {
 
     @Test
     public void findByUsernameFail(){
-        String username = "test@gmail.com";
+        String username = "test2@gmail.com";
         try{
-            principalDetailsService.loadUserByUsername(username);
-            Assert.fail("supposed to be failed");
+            UserDetails userDetails = principalDetailsService.loadUserByUsername(username);
+           // log.info(userDetails.getUsername());
+            Assert.fail("Not Found Exception");
         }catch (UsernameNotFoundException e){
+            log.info(" 실패 ");
             Assertions.assertThat(e.getMessage()).containsSequence(username);
         }
     }

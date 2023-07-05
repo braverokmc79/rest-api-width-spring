@@ -25,7 +25,6 @@ public class AccountService implements UserDetails {
 
             @Override
             public String getAuthority() {
-
                 return account.getRoles().toString();
             }
         });

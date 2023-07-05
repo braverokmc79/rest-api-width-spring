@@ -19,28 +19,29 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
+import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * 1.securedEnabled
  *
  * @Secured 애노테이션을 사용하여 인가 처리를 하고 싶을때 사용하는 옵션이다. 기본값은 false 2.prePostEnabled
- *
- *          @PreAuthorize, @PostAuthorize 애노테이션을 사용하여 인가 처리를 하고 싶을때 사용하는 옵션이다.
- *          기본값은 false 3.jsr250Enabled
- *
+ * @PreAuthorize, @PostAuthorize 애노테이션을 사용하여 인가 처리를 하고 싶을때 사용하는 옵션이다.
+ * 기본값은 false 3.jsr250Enabled
  * @RolesAllowed 애노테이션을 사용하여 인가 처리를 하고 싶을때 사용하는 옵션이다. 기본값은 false
- *
- *               @Secured, @RolesAllowed 특정 메서드 호출 이전에 권한을 확인한다. SpEL 지원하지 않는다.
+ * @Secured, @RolesAllowed 특정 메서드 호출 이전에 권한을 확인한다. SpEL 지원하지 않는다.
  * @Secured 는 스프링에서 지원하는 애노테이션이며, @RolesAllowed는 자바 표준
- *
- *          @Secured("ROLE_ADMIN") @RolesAllowed("ROLE_ADMIN")
- *
+ * @Secured("ROLE_ADMIN") @RolesAllowed("ROLE_ADMIN")
  */
 
 //구글로그인이 완료된 뒤의 후처리가 필요함. 1.코드 받기(인증) , 2.엑세스토큰(권한), 3.사용자프로필 정보를 가져오기
@@ -51,7 +52,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebSecurity // 스프링 시큐리티 필터가 스프링 필터체인에 등록이 됩니다.
 @RequiredArgsConstructor
 @Component
-public class SecurityConfig {
+public class SecurityConfig  {
 
     private final CustomAuthFailureHandler customFailureHandler;
 
@@ -61,14 +62,16 @@ public class SecurityConfig {
     PrincipalDetailsService principalDetailsService;
 
 
+    private AuthenticationManager authenticationManager;
+
+
     private final BCryptPasswordEncoder passwordEncoder;
 
 
     @Bean
-    public TokenStore tokenStore(){
-        return  new InMemoryTokenStore();
+    public TokenStore tokenStore() {
+        return new InMemoryTokenStore();
     }
-
 
 
     /**
@@ -79,12 +82,18 @@ public class SecurityConfig {
      */
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(principalDetailsService).passwordEncoder(passwordEncoder);
+
+        auth.inMemoryAuthentication()
+                .withUser("user")
+                .password(this.passwordEncoder.encode("pass"))
+                .roles("USER");
     }
 
 
     @Bean
     public AuthenticationManager authenticationManagerBean(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+        authenticationManager = configuration.getAuthenticationManager();
+        return authenticationManager;
     }
 
     @Bean
@@ -110,12 +119,14 @@ public class SecurityConfig {
 //			}
 
 
+
         };
     }
 
 
     /**
      * 정적인 영역 무시
+     *
      * @return
      */
     @Bean
@@ -126,46 +137,45 @@ public class SecurityConfig {
     }
 
 
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http.csrf().disable().cors().disable()
-//
-//                .authorizeHttpRequests(request -> request
-//                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-//
-//                        .requestMatchers("/h2-console","/h2-console/**", "/docs/index.html").permitAll()
-//                        .requestMatchers(HttpMethod.GET,"/api/**").authenticated()
-//                        .anyRequest().authenticated()
-//
-//
-//                )
-//
-//                .headers().frameOptions().sameOrigin()  // 여기!
-//                .and()
-//
-//                .formLogin(
-//                        login -> login.usernameParameter("email")
-//                            .passwordParameter("password")
-//                                .failureHandler(customFailureHandler).permitAll()
-//                )
-//
-//
-////                .formLogin(login -> login
-////                        .loginPage("/loginForm")
-////                        .loginProcessingUrl("/login")
-////                        .usernameParameter("userId")
-////                        .passwordParameter("password")
-////                        .defaultSuccessUrl("/", true)
-////                        .failureHandler(customFailureHandler) // 로그인 오류 실패 체크 핸들러
-////                        .permitAll()
-//               // )
-//                .logout();
-//
-//        return http.build();
-//    }
+/**
+ @Bean public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+ http.csrf().disable().cors().disable()
+
+ .authorizeHttpRequests(request -> request
+ .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+ .requestMatchers("/","/h2-console","/h2-console/**", "/docs/index.html").permitAll()
+ .requestMatchers(HttpMethod.GET,"/api/**").authenticated()
+ .anyRequest().authenticated()
+
+ )
+
+ .headers().frameOptions().sameOrigin()  // 여기!
+ .and()
+
+ .formLogin(
+ login -> login.usernameParameter("email")
+ .passwordParameter("password")
+ .failureHandler(customFailureHandler).permitAll()
+
+
+ )
 
 
 
+ //                .formLogin(login -> login
+ //                        .loginPage("/loginForm")
+ //                        .loginProcessingUrl("/login")
+ //                        .usernameParameter("userId")
+ //                        .passwordParameter("password")
+ //                        .defaultSuccessUrl("/", true)
+ //                        .failureHandler(customFailureHandler) // 로그인 오류 실패 체크 핸들러
+ //                        .permitAll()
+ // )
+ .logout();
+
+ return http.build();
+ }
+ */
 
 
 }

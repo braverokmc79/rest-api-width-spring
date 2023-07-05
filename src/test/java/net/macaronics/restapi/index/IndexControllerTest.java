@@ -1,6 +1,10 @@
 package net.macaronics.restapi.index;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.log4j.Log4j2;
 import net.macaronics.restapi.common.BaseControllerTest;
 import net.macaronics.restapi.common.RestDocsConfiguration;
 import net.macaronics.restapi.events.Event;
@@ -18,7 +22,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -26,7 +32,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
+@Log4j2
 public class IndexControllerTest  extends BaseControllerTest {
+
+
+    @Test
+     public void makeJwtToken(){
+         Date now =new Date();
+
+        String compact = Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // (1)
+                .setIssuer("fresh")
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + Duration.ofMinutes(30).toMillis()))
+                .claim("id", "test1")
+                .claim("email", "test1@gmail.com")
+                .signWith(SignatureAlgorithm.HS256, "ressfsae532qwerweqrqwerwr25ressfsae532qwerweqrqwerwr25ressfsae532qwerweqrqwerwr25ressfsae532qwerweqrqwerwr25ressfsae532qwerweqrqwerwr25")
+                .compact();
+
+        log.info("compact Tocke : {} " , compact);
+
+    }
+
 
 
 

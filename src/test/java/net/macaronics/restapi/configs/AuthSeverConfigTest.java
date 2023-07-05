@@ -58,10 +58,9 @@ public class AuthSeverConfigTest extends BaseControllerTest {
                                 .param("password", password)
                                 .param("grant_type", "password")
                 )
-                .andExpect(status().isOk())
                 .andDo(print())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("access_token").exists());
-
     }
 
 

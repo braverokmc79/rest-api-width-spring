@@ -1,6 +1,7 @@
 package net.macaronics.restapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.macaronics.restapi.accounts.AccountRepository;
 import net.macaronics.restapi.common.BaseControllerTest;
 import net.macaronics.restapi.common.RestDocsConfiguration;
 import net.macaronics.restapi.common.TestDescription;
@@ -54,6 +55,10 @@ public class EventControllerTests extends BaseControllerTest {
      // Headers = [Location:"http://localhost/api/events/10", Content-Type:"application/hal+json"]
 
      */
+//
+//    @Autowired
+//    AccountRepository accountRepository;
+//
 
 
     @Test
